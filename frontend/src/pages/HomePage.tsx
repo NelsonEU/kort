@@ -46,7 +46,7 @@ function formatExpiry(expiresAt: string | null): string {
 export default function HomePage() {
   useDocumentTitle('kort — shorten a link');
   const [input, setInput] = useState('');
-  const [expiresIn, setExpiresIn] = useState<ExpiresIn | null>(null);
+  const [expiresIn, setExpiresIn] = useState<ExpiresIn>('1w');
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +65,6 @@ export default function HomePage() {
     if (!url) {
       setError('That doesn’t look like a valid URL.');
       inputRef.current?.focus();
-      return;
-    }
-    if (!expiresIn) {
-      setError('Choose how long the link should work.');
       return;
     }
     if (!turnstileToken) {

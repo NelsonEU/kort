@@ -39,10 +39,32 @@ def verify_turnstile(token):
         return False
 
 
+def lookup_variants(url):
+    # Safe Browsing only matches path prefixes ending in "/", so ".../malware"
+    # misses a ".../malware/" entry, which servers typically redirect to.
+    parts = urllib.parse.urlsplit(url)
+    if parts.path.endswith("/"):
+        return {url}
+    return {url, urllib.parse.urlunsplit(parts._replace(path=parts.path + "/"))}
+
+
 def find_unsafe_urls(urls):
-    """Returns the subset of `urls` (at most SAFE_BROWSING_BATCH_SIZE) flagged by Google Safe Browsing."""
+    """Returns the subset of `urls` flagged by Google Safe Browsing."""
     if not settings.SAFE_BROWSING_API_KEY:
         return set()
+    originals = {}
+    for url in urls:
+        for variant in lookup_variants(url):
+            originals.setdefault(variant, set()).add(url)
+    variants = list(originals)
+    unsafe = set()
+    for start in range(0, len(variants), SAFE_BROWSING_BATCH_SIZE):
+        for match in _lookup(variants[start:start + SAFE_BROWSING_BATCH_SIZE]):
+            unsafe |= originals.get(match, set())
+    return unsafe
+
+
+def _lookup(urls):
     body = {
         "client": {"clientId": "kort", "clientVersion": "1.0"},
         "threatInfo": {

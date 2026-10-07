@@ -14,9 +14,6 @@ class Command(BaseCommand):
             raise CommandError("SAFE_BROWSING_API_KEY is not set.")
 
         urls = list(Link.objects.active().values_list("url", flat=True).distinct())
-        unsafe = set()
-        for start in range(0, len(urls), protection.SAFE_BROWSING_BATCH_SIZE):
-            unsafe |= protection.find_unsafe_urls(urls[start:start + protection.SAFE_BROWSING_BATCH_SIZE])
-
+        unsafe = protection.find_unsafe_urls(urls)
         disabled = Link.objects.active().filter(url__in=unsafe).update(disabled_at=timezone.now())
         self.stdout.write(f"Checked {len(urls)} URL(s), disabled {disabled} link(s).")

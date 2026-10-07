@@ -119,9 +119,13 @@
   cursor: pointer;
 }
 
+/* One line always reserved, so an error doesn't push the page down. */
 .home-error {
+  flex-basis: 100%;
+  min-height: 20px;
   margin: 0;
   font-size: 14px;
+  line-height: 20px;
   color: var(--error);
 }
 .home-note {

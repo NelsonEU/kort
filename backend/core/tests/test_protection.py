@@ -65,6 +65,22 @@ class TestFindUnsafeUrls:
             "https://example.com/",
         ]
 
+    def test_matches_trailing_slash_variant(self, monkeypatch, settings):
+        settings.SAFE_BROWSING_API_KEY = "key"
+        flagged = "http://malware.testing.google.test/testing/malware/"
+        requests = fake_urlopen(monkeypatch, {"matches": [{"threat": {"url": flagged}}]})
+        original = "http://malware.testing.google.test/testing/malware"
+        assert find_unsafe_urls([original]) == {original}
+        sent = {entry["url"] for entry in json.loads(requests[0].data)["threatInfo"]["threatEntries"]}
+        assert sent == {original, flagged}
+
+    def test_batches_large_lists(self, monkeypatch, settings):
+        settings.SAFE_BROWSING_API_KEY = "key"
+        requests = fake_urlopen(monkeypatch, {})
+        find_unsafe_urls([f"https://example.com/{i}" for i in range(300)])
+        sizes = [len(json.loads(request.data)["threatInfo"]["threatEntries"]) for request in requests]
+        assert sizes == [500, 100]
+
     def test_no_matches(self, monkeypatch, settings):
         settings.SAFE_BROWSING_API_KEY = "key"
         fake_urlopen(monkeypatch, {})
