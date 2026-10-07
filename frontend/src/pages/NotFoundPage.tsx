@@ -17,7 +17,7 @@ export default function NotFoundPage() {
           </div>
 
           <p className="not-found-text">
-            This short link doesn’t exist or has expired. Links work for 1 year after they’re created.
+            This short link doesn’t exist, has expired, or was disabled.
           </p>
 
           <Link className="primary-button not-found-action" to="/">

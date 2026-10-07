@@ -27,6 +27,8 @@ services:
     environment:
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      SAFE_BROWSING_API_KEY: ${SAFE_BROWSING_API_KEY:-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
 
   frontend:
     build: ./frontend
@@ -40,6 +42,7 @@ services:
       - web
     environment:
       VITE_API_PROXY_TARGET: ${VITE_API_PROXY_TARGET}
+      VITE_TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
 
 volumes:
   pgdata:

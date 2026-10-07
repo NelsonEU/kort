@@ -4,7 +4,7 @@
   gap: 10px;
 }
 .home-input {
-  flex: 999 1 260px;
+  flex: 1 1 100%;
   min-width: 0;
   height: 56px;
   padding: 0 18px;
@@ -25,6 +25,54 @@
   cursor: progress;
 }
 
+.home-expiry {
+  flex: 999 1 300px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  height: 56px;
+  padding: 4px;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+}
+.home-expiry-option {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.home-expiry-option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.home-expiry-option:has(input:checked) {
+  border-color: var(--text);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 700;
+}
+.home-expiry-option:has(input:focus-visible) {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.turnstile {
+  flex-basis: 100%;
+}
+.turnstile:empty {
+  display: none;
+}
+
 .home-result {
   display: flex;
   flex-wrap: wrap;
@@ -34,6 +82,16 @@
   padding: 14px 14px 14px 20px;
   border-radius: 12px;
   background: var(--panel);
+}
+.home-result-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.home-expires {
+  font-size: 14px;
+  color: var(--muted);
 }
 .home-short {
   color: inherit;

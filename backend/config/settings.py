@@ -18,6 +18,13 @@ CSRF_TRUSTED_ORIGINS = [
     o for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost:5173").split(",") if o
 ]
 
+# Cloudflare's always-pass test secret in dev, paired with the frontend's test site key.
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY") or (
+    "1x0000000000000000000000000000000AA" if DEBUG else ""
+)
+# Empty in dev skips the check (Google has no test key).
+SAFE_BROWSING_API_KEY = os.environ.get("SAFE_BROWSING_API_KEY", "")
+
 # The dev-friendly defaults above (insecure secret key, wildcard host) are
 # fine for local Docker Compose, but would be a real hole if the production
 # .env ever forgot to set them. Fail loudly instead of running insecurely.
@@ -28,6 +35,19 @@ if not DEBUG:
         raise ImproperlyConfigured("SECRET_KEY must be set explicitly when DEBUG=False")
     if ALLOWED_HOSTS == ["*"]:
         raise ImproperlyConfigured("ALLOWED_HOSTS must be set explicitly when DEBUG=False")
+    if not TURNSTILE_SECRET_KEY:
+        raise ImproperlyConfigured("TURNSTILE_SECRET_KEY must be set when DEBUG=False")
+    if not SAFE_BROWSING_API_KEY:
+        raise ImproperlyConfigured("SAFE_BROWSING_API_KEY must be set when DEBUG=False")
+
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 365
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # W008: Cloudflare redirects HTTP to HTTPS; redirecting here too would loop
+    # if the forwarded-proto header were ever missing. W005/W021: HSTS
+    # subdomains/preload are decisions for arn0.be as a whole, not this app.
+    SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W005", "security.W021"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

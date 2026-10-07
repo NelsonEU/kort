@@ -2,7 +2,7 @@
 
 ## Stack
 
-- **Backend**: Django + Django REST Framework, Postgres. One app (`core`): `POST /api/links/` creates a short link (anonymous, rate-limited, valid for 1 year), `GET /<code>` redirects to it, `GET /api/health/` for monitoring.
+- **Backend**: Django + Django REST Framework, Postgres. One app (`core`): `POST /api/links/` creates a short link (anonymous, rate-limited, expiring after 1 day to 1 year, guarded by Cloudflare Turnstile and Google Safe Browsing), `GET /<code>` redirects to it, `GET /api/health/` for monitoring.
 - **Frontend**: React + TypeScript, built with Vite. Plain CSS, no CSS-in-JS. A repository layer (`src/repositories/`) owns all `fetch()` calls.
 - **Deployment**: Docker Compose on a VPS. Django serves the built frontend directly (via WhiteNoise) alongside the API. Cloudflare Tunnel handles HTTPS and routing to the box.
 
@@ -39,3 +39,6 @@ First-time VPS setup:
 2. Add a public hostname to the Cloudflare Tunnel pointing at `http://localhost:<WEB_PORT>`.
 3. Set the GitHub secrets `VPS_HOST`, `VPS_USER`, `VPS_DEPLOY_KEY`, `VPS_DEPLOY_PATH`.
 4. Add the backup crontab line (see `deploy/backup-db.sh`).
+5. Cron `purge_expired_links` and `check_links` (re-checks active links against Safe Browsing) daily, via `docker compose -f docker-compose.prod.yml exec -T web python manage.py <command>`.
+
+To take down an abusive link: `python manage.py disable_link <code>` (same `exec` prefix).

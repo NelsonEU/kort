@@ -1,4 +1,6 @@
 FROM node:20-slim AS frontend-build
+ARG VITE_TURNSTILE_SITE_KEY
+RUN test -n "$VITE_TURNSTILE_SITE_KEY" || (echo "TURNSTILE_SITE_KEY is missing from .env" >&2 && exit 1)
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci

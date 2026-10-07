@@ -22,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile.prod
+      args:
+        VITE_TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY}
     # Loopback only, reached via the Cloudflare Tunnel, not public.
     ports:
       - "127.0.0.1:${WEB_PORT}:${PORT}"
@@ -34,7 +36,9 @@ services:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
       DEBUG: ${DEBUG}
       PORT: ${PORT}
+      SAFE_BROWSING_API_KEY: ${SAFE_BROWSING_API_KEY}
       SECRET_KEY: ${SECRET_KEY}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
     restart: unless-stopped
 
 volumes:
