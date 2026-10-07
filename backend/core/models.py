@@ -18,18 +18,28 @@ def default_expires_at():
     return timezone.now() + LINK_LIFETIME
 
 
+class LinkQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=timezone.now()))
+
+    def expired(self):
+        return self.filter(expires_at__lte=timezone.now())
+
+
 class Link(models.Model):
     code = models.CharField(max_length=CODE_LENGTH, unique=True)
     url = models.URLField(max_length=2048)
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=default_expires_at)
+    # Null means the link never expires (set by hand, e.g. in the Django admin).
+    expires_at = models.DateTimeField(default=default_expires_at, null=True, blank=True)
+
+    objects = LinkQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.code} → {self.url}"
 
     @classmethod
     def create_with_unique_code(cls, url):
-        # Expired links keep their code, so codes are never reused.
         while True:
             code = generate_code()
             if not cls.objects.filter(code=code).exists():

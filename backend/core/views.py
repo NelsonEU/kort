@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,7 +25,7 @@ class LinkCreateView(APIView):
 
 
 def follow_link(request, code):
-    link = Link.objects.filter(code=code, expires_at__gt=timezone.now()).first()
+    link = Link.objects.active().filter(code=code).first()
     if link is None:
         # The SPA renders its not-found page. In dev there's no built SPA
         # here (Vite serves it), so fall back to Django's plain 404.

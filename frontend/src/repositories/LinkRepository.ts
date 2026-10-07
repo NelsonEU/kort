@@ -3,7 +3,7 @@ import type { Link } from '../models/Link.ts';
 interface RawLink {
   code: string;
   url: string;
-  expires_at: string;
+  expires_at: string | null;
 }
 
 export class LinkError extends Error {

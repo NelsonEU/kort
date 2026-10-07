@@ -52,6 +52,12 @@ class TestFollowLink:
         Link.objects.create(code="old234", url="https://example.com", expires_at=timezone.now() - timedelta(seconds=1))
         assert client.get("/old234").status_code == 404
 
+    def test_permanent_link_redirects(self, client):
+        Link.objects.create(code="per234", url="https://example.com/forever", expires_at=None)
+        response = client.get("/per234")
+        assert response.status_code == 302
+        assert response["Location"] == "https://example.com/forever"
+
     def test_unknown_code_serves_spa_when_built(self, client, settings, tmp_path):
         (tmp_path / "index.html").write_text("<div id=root></div>")
         settings.FRONTEND_DIST = tmp_path
