@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/__pycache__
+**/*.pyc
+backend/media
+backend/staticfiles
+backend/db.sqlite3
+frontend/dist

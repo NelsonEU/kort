@@ -1,0 +1,121 @@
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #FAFAF9;
+  --text: #1B1D1F;
+  --muted: #5C6166;
+  --field-bg: #FFFFFF;
+  --field-border: #C9CCCF;
+  --primary-bg: #1B1D1F;
+  --primary-text: #FFFFFF;
+  --panel: #EEEFEC;
+  --ghost-bg: #FFFFFF;
+  --error: #B3261E;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #131415;
+  --text: #F2F2F0;
+  --muted: #A3A8AE;
+  --field-bg: #1B1C1E;
+  --field-border: #45494E;
+  --primary-bg: #F2F2F0;
+  --primary-text: #131415;
+  --panel: #222426;
+  --ghost-bg: transparent;
+  --error: #FF8A80;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+button,
+input {
+  font-family: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+[hidden] {
+  display: none !important;
+}
+
+.page {
+  min-height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.content-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.content h1 {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}

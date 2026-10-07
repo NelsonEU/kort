@@ -1,0 +1,18 @@
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--field-border);
+  border-radius: 12px;
+  background: var(--field-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
