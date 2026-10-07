@@ -153,12 +153,12 @@ export default function HomePage() {
               {submitting ? 'Shortening…' : 'Shorten'}
             </button>
 
+            <p className="home-error" role="alert">
+              <span hidden={!error}>{error}</span>
+            </p>
+
             <Turnstile ref={turnstileRef} onToken={handleToken} />
           </form>
-
-          <p className="home-error" role="alert" hidden={!error}>
-            {error}
-          </p>
 
           {/* Always mounted (just hidden) so screen readers announce the
               result: a live region inserted together with its content isn't. */}
