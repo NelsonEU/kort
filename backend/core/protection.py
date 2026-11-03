@@ -3,6 +3,7 @@ import json
 import urllib.parse
 import urllib.request
 
+import sentry_sdk
 from django.conf import settings
 
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
@@ -35,7 +36,9 @@ def verify_turnstile(token):
     try:
         with urllib.request.urlopen(TURNSTILE_VERIFY_URL, data=data, timeout=5) as response:
             return json.load(response).get("success") is True
-    except (OSError, ValueError):
+    except (OSError, ValueError) as error:
+        # Turnstile itself unreachable, not a failed captcha: users would wrongly see captcha_failed.
+        sentry_sdk.capture_exception(error)
         return False
 
 

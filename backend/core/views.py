@@ -1,3 +1,4 @@
+import sentry_sdk
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -35,8 +36,9 @@ class LinkCreateView(APIView):
         try:
             if protection.find_unsafe_urls([data["url"]]):
                 return error_response("unsafe_url")
-        except protection.SafeBrowsingUnavailable:
+        except protection.SafeBrowsingUnavailable as error:
             # Fail closed: an unchecked link is exactly what this guards against.
+            sentry_sdk.capture_exception(error)
             return error_response("safety_check_unavailable", status.HTTP_503_SERVICE_UNAVAILABLE)
 
         expires_at = timezone.now() + EXPIRY_OPTIONS[data["expires_in"]]
