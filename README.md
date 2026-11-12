@@ -40,5 +40,9 @@ First-time VPS setup:
 3. Set the GitHub secrets `VPS_HOST`, `VPS_USER`, `VPS_DEPLOY_KEY`, `VPS_DEPLOY_PATH`.
 4. Add the backup crontab line (see `deploy/backup-db.sh`).
 5. Cron `purge_expired_links` and `check_links` (re-checks active links against Safe Browsing) daily, via `docker compose -f docker-compose.prod.yml exec -T web python manage.py <command>`.
+6. Point Netdata's alerts somewhere: append `SEND_DISCORD`, `DISCORD_WEBHOOK_URL` and `SEND_EMAIL="NO"` (the box has no MTA, so mail fails silently) to `/etc/netdata/health_alarm_notify.conf`, then `sudo -u netdata /usr/libexec/netdata/plugins.d/alarm-notify.sh test sysadmin` to check delivery. `/etc/netdata/health.d/disks.conf` is a copy of the stock file warning at 80% instead of 90%: `/` is shared with the other apps on the VPS, so filling it takes them down too.
+7. Add a Cloudflare rate limiting rule on `POST /api/links/`, scoped by `http.host`. It blocks bursts at the edge before they cost a Turnstile or Safe Browsing call; the per-IP hourly limit in `config/settings.py` is a separate, slower guard.
+
+`WEB_CONCURRENCY` sets the gunicorn worker count (default 2, on a 2-vCPU box shared with other apps). Each worker runs 4 threads, because link creation blocks on two outbound HTTP calls.
 
 To take down an abusive link: `python manage.py disable_link <code>` (same `exec` prefix).
