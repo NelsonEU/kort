@@ -37,17 +37,20 @@ function loadScript(): Promise<void> {
 
 interface Props {
   onToken: (token: string | null) => void;
+  onFailed: () => void;
   ref?: Ref<TurnstileHandle>;
 }
 
-export default function Turnstile({ onToken, ref }: Props) {
+export default function Turnstile({ onToken, onFailed, ref }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
+  const onFailedRef = useRef(onFailed);
 
   useEffect(() => {
     onTokenRef.current = onToken;
-  }, [onToken]);
+    onFailedRef.current = onFailed;
+  }, [onToken, onFailed]);
 
   useImperativeHandle(ref, () => ({
     // Tokens are single-use, so a fresh one is needed after every submit.
@@ -67,11 +70,19 @@ export default function Turnstile({ onToken, ref }: Props) {
           appearance: 'interaction-only',
           theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
           callback: (token: string) => onTokenRef.current(token),
+          // Expiry is recoverable on its own; an error-callback or a script
+          // that never loads is not, hence the separate signal.
           'expired-callback': () => onTokenRef.current(null),
-          'error-callback': () => onTokenRef.current(null),
+          'error-callback': () => {
+            onTokenRef.current(null);
+            onFailedRef.current();
+          },
         });
       })
-      .catch(() => onTokenRef.current(null));
+      .catch(() => {
+        onTokenRef.current(null);
+        onFailedRef.current();
+      });
 
     return () => {
       cancelled = true;

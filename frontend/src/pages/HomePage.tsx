@@ -48,6 +48,7 @@ export default function HomePage() {
   const [input, setInput] = useState('');
   const [expiresIn, setExpiresIn] = useState<ExpiresIn>('1w');
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileFailed, setTurnstileFailed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [link, setLink] = useState<Link | null>(null);
@@ -55,7 +56,15 @@ export default function HomePage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const shortRef = useRef<HTMLAnchorElement>(null);
   const turnstileRef = useRef<TurnstileHandle>(null);
-  const handleToken = useCallback((token: string | null) => setTurnstileToken(token), []);
+  const handleToken = useCallback((token: string | null) => {
+    setTurnstileToken(token);
+    if (token) setTurnstileFailed(false);
+  }, []);
+  const handleTurnstileFailed = useCallback(() => setTurnstileFailed(true), []);
+
+  // A hard Turnstile failure keeps the button live, so that clicking it
+  // explains what went wrong; a permanently greyed-out button wouldn't.
+  const verifying = !turnstileToken && !turnstileFailed;
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,7 +77,11 @@ export default function HomePage() {
       return;
     }
     if (!turnstileToken) {
-      setError('Still checking that you’re human. Try again in a moment.');
+      setError(
+        turnstileFailed
+          ? 'We couldn’t load the check that you’re human. Please reload the page and try again.'
+          : 'Still checking that you’re human. Try again in a moment.',
+      );
       return;
     }
 
@@ -145,15 +158,15 @@ export default function HomePage() {
               ))}
             </div>
 
-            <button className="primary-button home-submit" type="submit" disabled={submitting}>
-              {submitting ? 'Shortening…' : 'Shorten'}
+            <button className="primary-button home-submit" type="submit" disabled={submitting || verifying}>
+              {submitting ? 'Shortening…' : verifying ? 'Checking you’re human…' : 'Shorten'}
             </button>
 
             <p className="home-error" role="alert">
               <span hidden={!error}>{error}</span>
             </p>
 
-            <Turnstile ref={turnstileRef} onToken={handleToken} />
+            <Turnstile ref={turnstileRef} onToken={handleToken} onFailed={handleTurnstileFailed} />
           </form>
 
           {/* Always mounted (just hidden) so screen readers announce the
