@@ -105,6 +105,10 @@ class TestFollowLink:
         assert response.status_code == 302
         assert response["Location"] == "https://example.com/target"
 
+    def test_redirect_is_not_indexable(self, client):
+        Link.objects.create(code="rob234", url="https://example.com/target")
+        assert client.get("/rob234")["X-Robots-Tag"] == "noindex, nofollow"
+
     def test_unknown_code_is_404(self, client):
         assert client.get("/nope99").status_code == 404
 

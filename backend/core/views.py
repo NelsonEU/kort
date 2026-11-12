@@ -55,4 +55,8 @@ def follow_link(request, code):
             raise Http404
         return TemplateResponse(request, "index.html", status=404)
     # 302, not 301: browsers cache a 301 indefinitely, past the link's expiry.
-    return HttpResponseRedirect(link.url)
+    response = HttpResponseRedirect(link.url)
+    # A crawled short link would otherwise attach its destination's reputation
+    # to this domain, in the window between two check_links runs.
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
