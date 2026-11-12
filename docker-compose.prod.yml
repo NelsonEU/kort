@@ -42,6 +42,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       SENTRY_DSN: ${SENTRY_DSN:-}
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
     restart: unless-stopped
 
 volumes:
